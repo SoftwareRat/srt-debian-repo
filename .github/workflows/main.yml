@@ -2,7 +2,7 @@ name: Build Debian Packages
 
 on:
   push:
-    branches: [ master ]
+    branches: [ gh-pages ]
 
 jobs:
   build:
