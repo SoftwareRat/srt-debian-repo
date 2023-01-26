@@ -1,1 +1,1 @@
-https://mpr.makedeb.org/gnome-terminal-transparency.git
+https://mpr.makedeb.org/fastfetch-bin.git
