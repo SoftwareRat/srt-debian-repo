@@ -22,7 +22,8 @@ jobs:
       run: |
         while read repo; do
           git clone $repo
-          cd $(basename $repo)
+          repo_name="$(basename $repo .git)"
+          cd $repo_name
           makedeb -s
           cd ..
         done < repositories.txt
