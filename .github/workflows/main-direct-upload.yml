@@ -1,0 +1,46 @@
+name: Build Debian Packages
+
+on:
+  push:
+    branches: [ gh-pages ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install makedeb
+      run: |
+        export TERM=xterm
+        export MAKEDEB_RELEASE='makedeb'
+        bash -c "$(wget -qO - 'https://shlink.makedeb.org/install')"
+        
+    - name: Build package
+      run: |
+        mkdir -p incoming
+        while read repo; do
+          git clone $repo
+          repo_name="$(basename $repo .git)"
+          cd $repo_name
+          makedeb -s
+          cd ..
+        done < repositories.txt
+        find . -name '*.deb' -exec mv {} incoming/ \;
+    - name: Commit and push build files
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git config --global user.email "40393784+SoftwareRat@users.noreply.github.com"
+        git config --global user.name "SoftwareRat"
+        git add incoming/*.deb
+        git commit -m "Build Debian packages"
+        git push https://x-access-token:$GITHUB_TOKEN@github.com/SoftwareRat/srt-debian-repo.git gh-pages
+    - name: Upload packages
+      uses: actions/upload-artifact@v2
+      with:
+        name: packages
+        path: incoming
