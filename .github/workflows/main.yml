@@ -39,7 +39,7 @@ jobs:
         git commit -m "Build new Debian packages"
         git push origin gh-pages
       env:
-        GITHUB_TOKEN: ${{ secrets.PAT }}
+        GITHUB_TOKEN: ${{ secrets.my_secret_github_access }}
     - name: Upload packages
       uses: actions/upload-artifact@v2
       with:
