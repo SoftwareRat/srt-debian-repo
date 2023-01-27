@@ -33,15 +33,13 @@ jobs:
       run: |
         git config --global user.email "40393784+SoftwareRat@users.noreply.github.com"
         git config --global user.name "SoftwareRat"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Commit and Push
       run: |
         git add incoming/
         git commit -m "Build new Debian packages"
         git push origin gh-pages
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.PAT }}
     - name: Upload packages
       uses: actions/upload-artifact@v2
       with:
