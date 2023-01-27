@@ -37,6 +37,8 @@ jobs:
         git config --global user.name "SoftwareRat"
     - name: Commit and Push
       run: |
+        # Only run on main branch push (e.g. pull request merge).
+        if: github.event_name == 'push'
         git add incoming/
         git commit -m "Build new Debian packages"
         git push origin gh-pages
