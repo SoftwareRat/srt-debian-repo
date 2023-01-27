@@ -4,7 +4,6 @@ on:
   push:
     branches: [ gh-pages ]
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -37,7 +36,7 @@ jobs:
         git config --global user.name "SoftwareRat"
     - name: Commit and Push
       # Only run on main branch push (e.g. pull request merge).
-      if: github.event_name == 'push'
+      if: github.event_name == 'push' && github.event.head_commit.message != 'Build new Debian packages'
       run: |
         git add incoming/
         git commit -m "Build new Debian packages"
