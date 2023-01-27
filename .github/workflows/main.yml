@@ -33,7 +33,7 @@ jobs:
         done < repositories.txt
         
         mkdir -p repo
-        mv *.deb repo/
+        find . -name '*.deb' -exec mv {} repo/ \;
         reprepro -b repo includedeb stretch repo/*.deb
         
     - name: Configure Git
