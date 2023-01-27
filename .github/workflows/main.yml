@@ -19,8 +19,8 @@ jobs:
         export TERM=xterm
         export MAKEDEB_RELEASE='makedeb'
         bash -c "$(wget -qO - 'https://shlink.makedeb.org/install')"
-        sleep 5
-        apt-get install -y reprepro
+        sleep 2
+        sudo apt-get install -y reprepro
     - name: Build package
       run: |
         while read repo; do
