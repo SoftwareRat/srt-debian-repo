@@ -18,10 +18,8 @@ jobs:
         export TERM=xterm
         export MAKEDEB_RELEASE='makedeb'
         bash -c "$(wget -qO - 'https://shlink.makedeb.org/install')"
-        
     - name: Build package
       run: |
-        mkdir -p incoming
         while read repo; do
           git clone $repo
           repo_name="$(basename $repo .git)"
@@ -29,16 +27,21 @@ jobs:
           makedeb -s
           cd ..
         done < repositories.txt
+        mkdir -p incoming
         find . -name '*.deb' -exec mv {} incoming/ \;
-    - name: Commit and push build files
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Configure Git
       run: |
         git config --global user.email "40393784+SoftwareRat@users.noreply.github.com"
-        git config --global user.name "SoftwareRat"
-        git add incoming/*.deb
-        git commit -m "Build Debian packages"
-        git push https://x-access-token:$GITHUB_TOKEN@github.com/SoftwareRat/srt-debian-repo.git gh-pages
+        git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Commit and Push
+      run: |
+        git add incoming/
+        git commit -m "Build new Debian packages"
+        git push origin gh-pages
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Upload packages
       uses: actions/upload-artifact@v2
       with:
