@@ -14,14 +14,15 @@ jobs:
         token: ${{ secrets.my_secret_github_access }}
       uses: actions/checkout@v2
 
-    - name: Install makedeb and reprepro
+    - name: Install dependencies
       run: |
         export TERM=xterm
         export MAKEDEB_RELEASE='makedeb'
         bash -c "$(wget -qO - 'https://shlink.makedeb.org/install')"
         sleep 2
         sudo apt-get install -y reprepro
-    - name: Build package
+    
+    - name: Build and prepare packages
       run: |
         while read repo; do
           git clone $repo
@@ -30,12 +31,11 @@ jobs:
           makedeb -s
           cd ..
         done < repositories.txt
-        mkdir -p incoming
-        find . -name '*.deb' -exec mv {} incoming/ \;
-    - name: Configure reprepro
-      run: |
-        cd incoming
-        reprepro includedeb testing *.deb
+        
+        mkdir -p repo
+        mv *.deb repo/
+        reprepro -b repo includedeb stretch repo/*.deb
+        
     - name: Configure Git
       run: |
         git config --global user.email "40393784+SoftwareRat@users.noreply.github.com"
@@ -44,32 +44,8 @@ jobs:
       # Only run on main branch push (e.g. pull request merge).
       if: github.event_name == 'push' && github.event.head_commit.message != 'Build new Debian packages'
       run: |
-        git add incoming/
+        git add repo/
         git commit -m "Build new Debian packages"
         git push origin gh-pages
       env:
         GITHUB_TOKEN: ${{ secrets.my_secret_github_access }}
-    - name: Upload packages
-      uses: actions/upload-artifact@v2
-      with:
-        name: packages
-        path: incoming
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.my_secret_github_access }}
-      with:
-        tag_name: ${{github.sha}}
-        release_name: Release-${{github.sha}}
-        draft: false
-        prerelease: false
-    - name: Upload deb files
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.my_secret_github_access }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: incoming/*.deb
-        asset_name: ${{ steps.create_release.outputs.tag_name }}.deb
-        asset_content_type: application/vnd.debian.binary-package

@@ -1,2 +1,1 @@
 https://mpr.makedeb.org/fastfetch-bin.git
-https://mpr.makedeb.org/prismlauncher.git
